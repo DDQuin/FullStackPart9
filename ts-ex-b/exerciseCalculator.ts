@@ -43,7 +43,7 @@ const sum = (nums: Array<number>): number => {
   return sum;
 };
 
-const calculateExercise = (
+export const calculateExercise = (
   dailyEx: Array<number>,
   target: number
 ): ExerciseResult => {
