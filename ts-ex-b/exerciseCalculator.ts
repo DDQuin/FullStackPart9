@@ -3,7 +3,7 @@ interface ExerciseResult {
   trainingDays: number;
   success: boolean;
   rating: number;
-  ratingDescription: String;
+  ratingDescription: string;
   target: number;
   average: number;
 }
@@ -17,8 +17,8 @@ const parseArgumentsA = (args: Array<string>): ExerciseValues => {
   if (args.length < 4) throw new Error("Not enough arguments");
 
   if (!isNaN(Number(args[2]))) {
-    let target = Number(args[2]);
-    let dailyEx: Array<number> = [];
+    const target = Number(args[2]);
+    const  dailyEx: Array<number> = [];
     for (let argIndex = 3; argIndex < args.length; argIndex++) {
       if (!isNaN(Number(args[argIndex]))) {
         dailyEx[argIndex - 3] = Number(args[argIndex]);
@@ -37,7 +37,7 @@ const parseArgumentsA = (args: Array<string>): ExerciseValues => {
 
 const sum = (nums: Array<number>): number => {
   let sum = 0;
-  for (let n of nums) {
+  for (const n of nums) {
     sum = sum + n;
   }
   return sum;
