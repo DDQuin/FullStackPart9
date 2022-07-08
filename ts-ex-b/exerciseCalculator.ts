@@ -8,6 +8,33 @@ interface ExerciseResult {
   average: number;
 }
 
+interface ExerciseValues {
+  target: number;
+  dailyEx: Array<number>;
+}
+
+const parseArgumentsA = (args: Array<string>): ExerciseValues => {
+  if (args.length < 4) throw new Error("Not enough arguments");
+
+  if (!isNaN(Number(args[2]))) {
+    let target = Number(args[2]);
+    let dailyEx: Array<number> = [];
+    for (let argIndex = 3; argIndex < args.length; argIndex++) {
+      if (!isNaN(Number(args[argIndex]))) {
+        dailyEx[argIndex - 3] = Number(args[argIndex]);
+      } else {
+        throw new Error("Provided values were not numbers!");
+      }
+    }
+    return {
+      target,
+      dailyEx,
+    };
+  } else {
+    throw new Error("Provided values were not numbers!");
+  }
+};
+
 const sum = (nums: Array<number>): number => {
   let sum = 0;
   for (let n of nums) {
@@ -41,4 +68,13 @@ const calculateExercise = (
   };
 };
 
-console.log(calculateExercise([3, 0, 2, 4.5, 0, 3, 1], 2));
+try {
+  const { target, dailyEx } = parseArgumentsA(process.argv);
+  console.log(calculateExercise(dailyEx, target));
+} catch (error: unknown) {
+  let errorMessage = "Something bad happened.";
+  if (error instanceof Error) {
+    errorMessage += " Error: " + error.message;
+  }
+  console.log(errorMessage);
+}
