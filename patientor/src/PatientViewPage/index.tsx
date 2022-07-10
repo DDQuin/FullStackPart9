@@ -10,7 +10,7 @@ import Flag from '@material-ui/icons/Flag';
 
 const PatientViewPage = () => {
     const { id } = useParams<{ id: string }>();
-    const [{ patientPage }, dispatch] = useStateValue();
+    const [{ patientPage}, dispatch] = useStateValue();
     
     const fetchPatient = async () => {
         try {
@@ -71,9 +71,18 @@ const EntryPatient = (props: EntryPatientProp) => {
 };
 
 const DiagnoseCode = (props: DiagnoseCodeProp) => {
+  const [{diagnoses}] = useStateValue();
+  const diagnose = diagnoses[props.diagnoseCode];
+  if (!diagnose) {
+    return (
+      <li>
+      {props.diagnoseCode} 
+    </li>
+      );
+  }
   return (
     <li>
-      {props.diagnoseCode}
+      {props.diagnoseCode} {diagnose.name}
     </li>
   );
 };
