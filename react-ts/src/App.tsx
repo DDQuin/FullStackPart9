@@ -1,19 +1,39 @@
 const App = () => {
   const courseName = "Half Stack application development";
-  const courseParts: Course[] = [
+  const courseParts: CoursePart[] = [
     {
       name: "Fundamentals",
-      exerciseCount: 10
+      exerciseCount: 10,
+      description: "This is the leisured course part",
+      type: "normal"
+    },
+    {
+      name: "Advanced",
+      exerciseCount: 7,
+      description: "This is the harded course part",
+      type: "normal"
     },
     {
       name: "Using props to pass data",
-      exerciseCount: 7
+      exerciseCount: 7,
+      groupProjectCount: 3,
+      type: "groupProject"
     },
     {
       name: "Deeper type usage",
-      exerciseCount: 14
+      exerciseCount: 14,
+      description: "Confusing description",
+      exerciseSubmissionLink: "https://fake-exercise-submit.made-up-url.dev",
+      type: "submission"
+    },
+    {
+      name: "Backend development",
+      exerciseCount: 21,
+      description: "Typing the backend",
+      requirements: ["nodejs", "jest"],
+      type: "special"
     }
-  ];
+  ]
 
   return (
     <div>
@@ -25,22 +45,52 @@ const App = () => {
   );
 };
 
+interface CoursePartBase {
+  name: string;
+  exerciseCount: number;
+  type: string;
+}
+
+interface CoursePartBaseDesc extends CoursePartBase {
+  description: string;
+}
+
+interface CourseNormalPart extends CoursePartBaseDesc {
+  type: "normal";
+}
+interface CourseProjectPart extends CoursePartBase {
+  type: "groupProject";
+  groupProjectCount: number;
+}
+
+interface CourseSubmissionPart extends CoursePartBaseDesc {
+  type: "submission";
+  exerciseSubmissionLink: string;
+}
+
+interface CourseSpecialPart extends CoursePartBaseDesc {
+  type: "special";
+  requirements: Array<string>
+}
+
+type CoursePart = CourseNormalPart | CourseProjectPart | CourseSubmissionPart | CourseSpecialPart;
+
 interface HeaderProps {
   name: string;
 }
 
-type Course =  {
-  name: string,
-  exerciseCount: number,
-
+interface PartProps {
+  coursePart: CoursePart;
 }
 
+
+
 interface ContentProps {
-  courseParts: Course[];
+  courseParts: CoursePart[];
 }
 
 interface TotalProps {
-  courseParts: Course[];
+  courseParts: CoursePart[];
 }
 
 const Header = (props: HeaderProps) => {
@@ -51,19 +101,64 @@ const Header = (props: HeaderProps) => {
 
 const Content = (props: ContentProps) => {
   return (
-    <>
-    <p>
-        {props.courseParts[0].name} {props.courseParts[0].exerciseCount}
-      </p>
-      <p>
-        {props.courseParts[1].name} {props.courseParts[1].exerciseCount}
-      </p>
-      <p>
-        {props.courseParts[2].name} {props.courseParts[2].exerciseCount}
-      </p>
+    <div>
+      {props.courseParts.map(part =>  {
+        return (
+          <>
+      <Part key={part.type} coursePart={part}/>
+      <br></br>
       </>
+        )
+})}
+    </div>
   )
 
+}
+
+const Part = (props: PartProps) => {
+
+  const assertNever = (value: never): never => {
+    throw new Error(
+      `Unhandled discriminated union member: ${JSON.stringify(value)}`
+    );
+  };
+
+  switch(props.coursePart.type) {
+    case "groupProject":
+      return (
+        <div>
+          <b>{props.coursePart.name} {props.coursePart.exerciseCount}</b><br></br>
+          project exercises {props.coursePart.groupProjectCount}
+        </div>
+      )
+    case "normal":
+      return (
+        <div>
+          <b>{props.coursePart.name} {props.coursePart.exerciseCount}</b><br></br>
+          <em>{props.coursePart.description}</em>
+        </div>
+      )
+    case "submission":
+      return (
+        <div>
+          <b>{props.coursePart.name} {props.coursePart.exerciseCount}</b><br></br>
+          <em>{props.coursePart.description}</em><br></br>
+          submit to {props.coursePart.exerciseSubmissionLink}
+        </div>
+      )
+
+      case "special":
+      return (
+        <div>
+          <b>{props.coursePart.name} {props.coursePart.exerciseCount}</b><br></br>
+          <em>{props.coursePart.description}</em><br></br>
+          required skills: {props.coursePart.requirements.toString()}
+        </div>
+      )
+    default:
+      return assertNever(props.coursePart)
+
+  }
 }
 
 const Total = (props: TotalProps) => {
