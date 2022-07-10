@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 import React from "react";
 import axios from "axios";
-import { Entry, Gender, Patient } from "../types";
+import { Entry, Gender, Patient, HospitalEntry, OccupationalHealthcareEntry, HealthCheckEntry} from "../types";
 import { apiBaseUrl } from "../constants";
 import { useParams } from "react-router-dom";
 import { setPatient, useStateValue } from "../state";
@@ -38,7 +38,16 @@ const PatientViewPage = () => {
             occupation: {patientPage?.occupation}
             <br></br>
             <h2>entries</h2>
-            {patientPage?.entries.map(e => <EntryPatient key={e.id} entry={e}/>)}
+            {patientPage?.entries.map(e => {
+              return (
+                <>
+                 <EntryPatient key={e.id} entry={e}/>
+                 <br></br>
+                </>
+
+              );
+            }
+           )}
              
         </div>
     );
@@ -51,6 +60,18 @@ interface EntryPatientProp {
   entry: Entry;
 }
 
+interface HospitalProp {
+  entry: HospitalEntry;
+}
+
+interface OccupationProp {
+  entry: OccupationalHealthcareEntry;
+}
+
+interface HealthCheckProp {
+  entry: HealthCheckEntry;
+}
+
 interface DiagnoseCodeProp {
   diagnoseCode: string;
 }
@@ -58,17 +79,94 @@ interface DiagnoseCodeProp {
 const EntryPatient = (props: EntryPatientProp) => {
   const entry = props.entry;
 
-  return (
-    <div>
-      {entry.date} {entry.description}
-      <br></br>
-      <ul>
-        {entry.diagnosisCodes?.map(d => <DiagnoseCode key={d} diagnoseCode={d}/>)}
-      </ul>
-    </div>
-  );
+  const assertNever = (value: never): never => {
+    throw new Error(
+      `Unhandled discriminated union member: ${JSON.stringify(value)}`
+    );
+  };
+
+
+  switch(entry.type) {
+    case "Hospital":
+      return <HospitalPEntry entry={entry}/>;
+    case "OccupationalHealthcare":
+      return <OccupationEntry entry={entry}/>;
+    case "HealthCheck":
+      return <HealthCheckPEntry entry={entry}/>;
+      default:
+        return assertNever(entry);
+      
+
+  }
+
 
 };
+
+const HospitalPEntry = (props: HospitalProp) => {
+const entry = props.entry;
+const style = {
+  borderStyle: "solid",
+  borderRadius: 5,
+  borderWidth: "thin",
+};
+return (
+  <div style={style}>
+    {entry.date} type: {entry.type}<br></br>
+    <em>{entry.description}</em>
+    <br></br>
+    <ul>
+      {entry.diagnosisCodes?.map(d => <DiagnoseCode key={d} diagnoseCode={d}/>)}
+    </ul>
+    discharge at {entry.discharge.date} after {entry.discharge.criteria}<br></br>
+    diagnose by {entry.specialist}
+  </div>
+);
+
+};
+
+const OccupationEntry = (props: OccupationProp) => {
+  const entry = props.entry;
+  const style = {
+    borderStyle: "solid",
+    borderRadius: 5,
+    borderWidth: "thin",
+  };
+return (
+  <div style={style}>
+    {entry.date} type: {entry.type}<br></br>
+    <em>{entry.description}</em>
+    <br></br>
+    <ul>
+      {entry.diagnosisCodes?.map(d => <DiagnoseCode key={d} diagnoseCode={d}/>)}
+    </ul>
+    employee: {entry.employerName} sick leave started {entry.sickLeave.startDate} and ends at {entry.sickLeave.endDate}<br></br>
+    diagnose by {entry.specialist}
+  </div>
+);
+};
+
+const HealthCheckPEntry = (props: HealthCheckProp) => {
+  const entry = props.entry;
+  const style = {
+    borderStyle: "solid",
+    borderRadius: 5,
+    borderWidth: "thin",
+  };
+return (
+  <div style={style}>
+    {entry.date} type: {entry.type}<br></br>
+     <em>{entry.description}</em>
+    <br></br>
+    <ul>
+      {entry.diagnosisCodes?.map(d => <DiagnoseCode key={d} diagnoseCode={d}/>)}
+    </ul>
+    health rating: {entry.healthCheckRating} <br></br>
+    diagnose by {entry.specialist}
+  </div>
+);
+};
+
+
 
 const DiagnoseCode = (props: DiagnoseCodeProp) => {
   const [{diagnoses}] = useStateValue();
@@ -86,5 +184,7 @@ const DiagnoseCode = (props: DiagnoseCodeProp) => {
     </li>
   );
 };
+
+
 
 export default PatientViewPage;
