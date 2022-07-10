@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 import React from "react";
 import axios from "axios";
-import { Gender, Patient } from "../types";
+import { Entry, Gender, Patient } from "../types";
 import { apiBaseUrl } from "../constants";
 import { useParams } from "react-router-dom";
 import { setPatient, useStateValue } from "../state";
@@ -36,11 +36,46 @@ const PatientViewPage = () => {
             ssn: {patientPage?.ssn}<br>
             </br>
             occupation: {patientPage?.occupation}
+            <br></br>
+            <h2>entries</h2>
+            {patientPage?.entries.map(e => <EntryPatient key={e.id} entry={e}/>)}
              
         </div>
     );
     
 
+};
+
+
+interface EntryPatientProp {
+  entry: Entry;
+}
+
+interface DiagnoseCodeProp {
+  diagnoseCode: string;
+}
+
+const EntryPatient = (props: EntryPatientProp) => {
+  const entry = props.entry;
+
+  return (
+    <div>
+      {entry.date} {entry.description}
+      <br></br>
+      <ul>
+        {entry.diagnosisCodes?.map(d => <DiagnoseCode key={d} diagnoseCode={d}/>)}
+      </ul>
+    </div>
+  );
+
+};
+
+const DiagnoseCode = (props: DiagnoseCodeProp) => {
+  return (
+    <li>
+      {props.diagnoseCode}
+    </li>
+  );
 };
 
 export default PatientViewPage;
