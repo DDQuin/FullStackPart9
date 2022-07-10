@@ -4,7 +4,7 @@ import axios from "axios";
 import { Gender, Patient } from "../types";
 import { apiBaseUrl } from "../constants";
 import { useParams } from "react-router-dom";
-import { useStateValue } from "../state";
+import { setPatient, useStateValue } from "../state";
 import Fireplace from '@material-ui/icons/Fireplace';
 import Flag from '@material-ui/icons/Flag';
 
@@ -17,7 +17,7 @@ const PatientViewPage = () => {
           const { data: patientFromApi } = await axios.get<Patient>(
             `${apiBaseUrl}/patients/${id}`
           );
-          dispatch({ type: "SET_PATIENT", payload: patientFromApi });
+          dispatch(setPatient(patientFromApi));
         } catch (e) {
           console.error(e);
         }
