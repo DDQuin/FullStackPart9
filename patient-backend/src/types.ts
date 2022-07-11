@@ -70,4 +70,9 @@ export interface Diagnose {
   | OccupationalHealthcareEntry
   | HealthCheckEntry;
 
+  export type NewEntry =
+  |  Omit<HospitalEntry, 'id'>
+  | Omit<OccupationalHealthcareEntry, 'id'>
+  | Omit<HealthCheckEntry, 'id'>;
+
  

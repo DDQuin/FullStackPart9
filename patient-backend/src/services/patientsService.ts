@@ -1,7 +1,7 @@
 import patientsData from '../../data/patients';
 import { v1 as uuid } from 'uuid';
 
-import { Patient, NewPatient,  NonSensitivePatient } from '../types';
+import { Patient, NewPatient,  NonSensitivePatient, Entry, NewEntry } from '../types';
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 const patients: Array<Patient> = patientsData;
@@ -39,11 +39,32 @@ const newPatient = {
   ...entry,
 };
 
+
+
 patients.push(newPatient);
 return newPatient;
 };
 
+const addEntry = (idPatient: string, entry: NewEntry ): Patient => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+  const id: string = uuid();
+
+  const patientToAddEntryTo = patients.find(p => p.id === idPatient);
+  if (!patientToAddEntryTo) {
+    throw new Error("Patient doesnt exist, id is wwrong " + idPatient);
+  }
+  const newEntry: Entry = {
+    id,
+    ...entry,
+  };
+  patientToAddEntryTo.entries.push(newEntry);
+
+
+return patientToAddEntryTo; 
+};
+
+
 
 export default {
-  getEntries, getNonSensitiveEntries, addPatient, getPatient
+  getEntries, getNonSensitiveEntries, addPatient, getPatient, addEntry
 };
