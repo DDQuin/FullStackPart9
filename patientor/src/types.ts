@@ -61,3 +61,8 @@ export type Entry =
 | HospitalEntry
 | OccupationalHealthcareEntry
 | HealthCheckEntry;
+
+export type EntryAction = {
+  entry: Entry,
+  id: string
+};

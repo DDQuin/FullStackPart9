@@ -3,14 +3,26 @@ import React from "react";
 import axios from "axios";
 import { Entry, Gender, Patient, HospitalEntry, OccupationalHealthcareEntry, HealthCheckEntry} from "../types";
 import { apiBaseUrl } from "../constants";
+import { Button} from "@material-ui/core";
 import { useParams } from "react-router-dom";
-import { setPatient, useStateValue } from "../state";
+import { setPatient, useStateValue,  addEntry } from "../state";
+import AddHospitalEntryModal from "../AddPatientModal/AddHospitalEntryModal";
 import Fireplace from '@material-ui/icons/Fireplace';
 import Flag from '@material-ui/icons/Flag';
+import { HospitalEntryFormValues } from "../AddPatientModal/AddHospitalEntryForm";
 
 const PatientViewPage = () => {
     const { id } = useParams<{ id: string }>();
     const [{ patientPage}, dispatch] = useStateValue();
+    const [modalOpen, setModalOpen] = React.useState<boolean>(false);
+    const [error, setError] = React.useState<string>();
+
+    const openModal = (): void => setModalOpen(true);
+
+    const closeModal = (): void => {
+      setModalOpen(false);
+      setError(undefined);
+    };
     
     const fetchPatient = async () => {
         try {
@@ -26,6 +38,29 @@ const PatientViewPage = () => {
     if (!patientPage || patientPage.id != id) {
         void fetchPatient();
     }
+
+    const submitNewEntry = async (values: HospitalEntryFormValues) => {
+      try {
+        if (!patientPage) {
+          throw new Error("Patient not defined");
+        }
+        console.log(values, "Values for posting");
+        const { data: newEntry } = await axios.post<Entry>(
+          `${apiBaseUrl}/patients/${patientPage.id}/entries`,
+          values
+        );
+        dispatch(addEntry(newEntry, patientPage.id));
+        closeModal();
+      } catch (e: unknown) {
+        if (axios.isAxiosError(e)) {
+          console.error(e?.response?.data || "Unrecognized axios error");
+          setError(String(e?.response?.data?.error) || "Unrecognized axios error");
+        } else {
+          console.error("Unknown error", e);
+          setError("Unknown error");
+        }
+      }
+    };
 
     return (
         <div>
@@ -48,6 +83,16 @@ const PatientViewPage = () => {
               );
             }
            )}
+
+<AddHospitalEntryModal
+        modalOpen={modalOpen}
+        onSubmit={submitNewEntry}
+        error={error}
+        onClose={closeModal}
+      />
+      <Button variant="contained" onClick={() => openModal()}>
+        Add New Hospital Entry
+      </Button>
              
         </div>
     );

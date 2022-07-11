@@ -100,7 +100,7 @@ export const NumberField = ({ field, label, min, max }: NumberProps) => {
   );
 };
 
-export const DiagnosisSelection = ({
+export const DiagnosisSelection = ({  
   diagnoses,
   setFieldValue,
   setFieldTouched,
@@ -114,7 +114,7 @@ export const DiagnosisSelection = ({
   const onChange = (data: string[]) => {    
     setDiagnoses([...data]);
     setFieldTouched(field, true);
-    setFieldValue(field, selectedDiagnoses);
+    setFieldValue(field, [...data]);
   };
 
   const stateOptions = diagnoses.map((diagnosis) => ({
