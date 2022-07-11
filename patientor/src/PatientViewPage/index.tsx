@@ -12,17 +12,34 @@ import Fireplace from '@material-ui/icons/Fireplace';
 import Flag from '@material-ui/icons/Flag';
 import { HospitalEntryFormValues } from "../AddPatientModal/AddHospitalEntryForm";
 import { OccupationEntryFormValues } from "../AddPatientModal/AddOccupationEntryForm";
+import AddHealthCheckEntryModal from "../AddPatientModal/AddHealthCheckEntryModal";
+import { HealthCheckEntryFormValues } from "../AddPatientModal/AddHealthCheckEntryForm";
 
 const PatientViewPage = () => {
     const { id } = useParams<{ id: string }>();
     const [{ patientPage}, dispatch] = useStateValue();
     const [modalOpen, setModalOpen] = React.useState<boolean>(false);
+    const [modalOccOpen, setModalOccOpen] = React.useState<boolean>(false);
+    const [modalHealthOpen, setModalHealthOpen] = React.useState<boolean>(false);
     const [error, setError] = React.useState<string>();
 
     const openModal = (): void => setModalOpen(true);
 
+    const openModalOcc = (): void => setModalOccOpen(true);
+
+    const openModalHealth = (): void => setModalHealthOpen(true);
+
     const closeModal = (): void => {
       setModalOpen(false);
+      setError(undefined);
+    };
+
+    const closeModalOcc = (): void => {
+      setModalOccOpen(false);
+      setError(undefined);
+    };
+    const closeModalHealth = (): void => {
+      setModalHealthOpen(false);
       setError(undefined);
     };
     
@@ -87,6 +104,29 @@ const PatientViewPage = () => {
       }
     };
 
+    const submitNewHealthEntry = async (values: HealthCheckEntryFormValues) => {
+      try {
+        if (!patientPage) {
+          throw new Error("Patient not defined");
+        }
+        console.log(values, "Values for posting");
+        const { data: newEntry } = await axios.post<Entry>(
+          `${apiBaseUrl}/patients/${patientPage.id}/entries`,
+          values
+        );
+        dispatch(addEntry(newEntry, patientPage.id));
+        closeModal();
+      } catch (e: unknown) {
+        if (axios.isAxiosError(e)) {
+          console.error(e?.response?.data || "Unrecognized axios error");
+          setError(String(e?.response?.data?.error) || "Unrecognized axios error");
+        } else {
+          console.error("Unknown error", e);
+          setError("Unknown error");
+        }
+      }
+    };
+
     return (
         <div>
             <h2>{patientPage?.name} {patientPage?.gender == Gender.Male ? <Flag/> : <Fireplace/>}</h2>
@@ -120,13 +160,23 @@ const PatientViewPage = () => {
       </Button>
 
       <AddOccupationEntryModal
-        modalOpen={modalOpen}
+        modalOpen={modalOccOpen}
         onSubmit={submitNewOccupationEntry}
         error={error}
-        onClose={closeModal}
+        onClose={closeModalOcc}
       />
-      <Button variant="contained" onClick={() => openModal()}>
+      <Button variant="contained" onClick={() => openModalOcc()}>
         Add New Occupation Entry
+      </Button>
+
+      <AddHealthCheckEntryModal
+        modalOpen={modalHealthOpen}
+        onSubmit={submitNewHealthEntry}
+        error={error}
+        onClose={closeModalHealth}
+      />
+      <Button variant="contained" onClick={() => openModalHealth()}>
+        Add New HealthCheck Entry
       </Button>
              
         </div>
